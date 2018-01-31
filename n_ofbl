@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+
+'''Copyright (c) 2016, Ryo Hanafusa.
+All rights reserved.'''
+
+import os
+import sys
+
+try:
+    MY_MODUDLES = [
+        'urldl-2.3-n',
+        'colpri-2.3',
+        'fileope-1.0'
+        ]
+    for mod in MY_MODUDLES:
+        sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/' + mod)
+
+    from fileope import FileOperation
+    from urldl_n import NURLDownload
+    from colpri import ColorPrint
+
+    from n_scrape_urllib import NScrape
+except:
+    print 'Could not load some modules'
+    sys.exit(1)
+finally:
+    pass
+
+
+def main():
+    '''main'''
+    ns = NScrape()
+    c_p = ColorPrint()
+    n_dler = NURLDownload()
+    stg = FileOperation()
+
+    print c_p.with_color('N Official Blog Scraping', 'purple')
+    print c_p.with_color('Checking the savepath', 'cyan')
+    n_dler.load_savepath()
+
+    print c_p.with_color('Checking the latest image URL', 'cyan')
+    stg.load_file('LATEST_IMAGE_URL.txt')
+
+    latest_image_url = stg.readline()
+    ns.set_latest_image_url(latest_image_url)
+    ns.set_dler(n_dler)
+
+    ns.scrape('http://hoge.n.com')
+
+    print '\n*** Scaping finish ***'
+
+    new_latest_image_url = ns.get_new_latest_image_url()
+    stg.update_content(new_latest_image_url)
+
+    print c_p.with_color(
+        ['Downloaded',
+         str(ns.image_number),
+         'images'],
+        'purple')
+
+if __name__ == '__main__':
+    main()
